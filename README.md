@@ -15,8 +15,11 @@ code used in this project
 
 # Start
 tts from Elevenlabs - Elevenlabs Api key needed
+
 language model from OpenAI - OpenAI Api key needed
 - edit Api keys in tts.py
 
 run on webserver: python server.py
 run on console: python tts.py
+
+[!]whisper has not been intergrated yet
