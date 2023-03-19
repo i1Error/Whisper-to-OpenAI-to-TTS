@@ -1,5 +1,5 @@
 # LM-web-tts-stt
-Language Model with TTS (text to speach) and STT (speach to text) on html
+Language Model with TTS (text to speach) and STT (speach to text) on html webpage
 
 code used in this project
 - whisper_mic from https://github.com/mallorbc/whisper_mic
@@ -14,8 +14,8 @@ code used in this project
 - pip install -r requirements.txt
 
 # Start
-\n[!]tts from Elevenlabs - Elevenlabs Api key needed
-\n[!]language model from OpenAI - OpenAI Api key needed
+tts from Elevenlabs - Elevenlabs Api key needed
+language model from OpenAI - OpenAI Api key needed
 - edit Api keys in tts.py
 
 run on webserver: python server.py
