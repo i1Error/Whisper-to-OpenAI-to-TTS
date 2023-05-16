@@ -1,7 +1,7 @@
 # LM-web-tts-stt
 Language Model with TTS (text to speach) and STT (speach to text) on html webpage
 
-Have a Conversation with AI!
+Have a Conversation with an AI!
 
 # Installation
 - create new anaconda enviroment (conda create -n enviroment)
