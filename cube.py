@@ -8,15 +8,14 @@ import tempfile
 import os
 import threading
 import click
-import torch
 import numpy as np
 import openai
 import json
 
-EL_key = "Your EL_key"
-EL_voice = "Your EL_voice"
-OAI_key = "Your OAI_key"
- 
+EL_key = "Your Elevenlabs Api Key"
+EL_voice = "VR6AewLTigWG4xSOukaG" #default voice
+OAI_key = "Your OpenAI Api Key"
+
 @click.command()
 @click.option("--verbose", default=False, help="Whether to print verbose output", is_flag=True,type=bool)
 @click.option("--energy", default=300, help="Energy level for mic to detect", type=int)
@@ -62,6 +61,7 @@ def record_audio(audio_queue, energy, pause, dynamic_energy, save_file, temp_dir
             i += 1
 
 def transcribe_forever(audio_queue, result_queue, verbose, save_file, convhistory):
+    global EL_voice
     is_typing = False 
     
     while True:
@@ -71,14 +71,64 @@ def transcribe_forever(audio_queue, result_queue, verbose, save_file, convhistor
             predicted_text = result["text"]
             result_queue.put_nowait("User: " + predicted_text)
             
-            if "stop cube" in predicted_text.lower():
-                break
-            
             if "cube" in predicted_text.lower():
                 llm(predicted_text, convhistory)  
 
+
+                
+            if "list voices" in predicted_text.lower():
+                list_msg = "Custom: Darius, Minister, Greek, Draven, Gojo\nBasic: Rachel, Domi, Bella, Antoni, Elli, Josh, Arnold, Adam, Sam"
+                print(list_msg)
+
+            if "voice darius" in predicted_text.lower():
+                print("voice set to Darius")
+                EL_voice = "2bTMqWrcKqV0EEO600nY"             
+            if "voice minister" in predicted_text.lower():
+                print("voice set to Minister")
+                EL_voice = "4f9hEiPPv5jWWLBvumAR"              
+            if "voice greek" in predicted_text.lower():
+                print("voice set to Greek")
+                EL_voice = "FYH5nlcv2arTuNyizojn"                    
+            if "voice draven" in predicted_text.lower():
+                print("voice set to Draven")
+                EL_voice = "rYrBZKUNQxN3aqxgHojW"                   
+            if "voice gojo" in predicted_text.lower():  
+                print("voice set to Gojo")
+                EL_voice = "zG7AclHech1y5XBAr4h8"                    
+                    
+            if "voice rachel" in predicted_text.lower():
+                print("voice set to Rachel")
+                EL_voice = "21m00Tcm4TlvDq8ikWAM"                    
+            if "voice domi" in predicted_text.lower():
+                print("voice set to Domi")
+                EL_voice = "AZnzlk1XvdvUeBnXmlld"                    
+            if "voice bella" in predicted_text.lower():
+                print("voice set to Bella")
+                EL_voice = "EXAVITQu4vr4xnSDxMaL"                   
+            if "voice antoni" in predicted_text.lower():
+                print("voice set to Antoni")
+                EL_voice = "ErXwobaYiN019PkySvjV"                    
+            if "voice elli" in predicted_text.lower(): 
+                print("voice set to Elli")
+                EL_voice = "MF3mGyEYCl7XYWbV9V6O"                    
+            if "voice josh" in predicted_text.lower():
+                print("voice set to Josh")
+                EL_voice = "TxGEqnHWrfWFTfGW9XjX"                    
+            if "voice arnold" in predicted_text.lower():
+                print("voice set to Arnold")
+                EL_voice = "VR6AewLTigWG4xSOukaG"                    
+            if "voice adam" in predicted_text.lower():
+                print("voice set to Adam")
+                EL_voice = "pNInz6obpgDQGcFmaJgB"                    
+            if "voice sam" in predicted_text.lower():
+                print("voice set to Sam")  
+                EL_voice = "yoZ06aMxZJJ28mfd3POQ"                             
+            
+            
+            
             if "print conversation" in predicted_text.lower():
-                print("\n\nconvhistory:\n" + "".join(convhistory)+"\n\n")
+                tconv = "\n\nconvhistory:\n" + "".join(convhistory)+"\n\n"
+                print(tconv)
                 
             if "switch to typing" in predicted_text.lower():
                 is_typing = True
@@ -93,22 +143,13 @@ def transcribe_forever(audio_queue, result_queue, verbose, save_file, convhistor
             if mpro.lower() == "switch to talking":
                 is_typing = False
                 print("Switching to talking mode.")
-
-            if "stop cube" in predicted_text.lower():
-                break
-            
-            if "cube" in predicted_text.lower():
-                llm(predicted_text, convhistory)  
-
-            if "print conversation" in predicted_text.lower():
-                print("\n\nconvhistory:\n" + "".join(convhistory)+"\n\n")
-            else:
-                llm(mpro, convhistory)
-
+            if mpro.lower() == "print conversation":
+                tconv = "\n\nconvhistory:\n" + "".join(convhistory)+"\n\n"
+                print(tconv)
  
 def llm(message, convhistory):
     openai.api_key = OAI_key
-    gptprompt= f"\n\n{convhistory}\n\nThis is how a smart Person would responded in a conversation. That person would respond in a tense manner and gives advice and information.\n\The Person would talk about the message and would elaborate on it as well. The Person will answer in short sentences. You will behave like such a person\n#########Message:\n{message}\nEnd Message#########\n"
+    gptprompt= f"\n\n{convhistory}\n\nThis is how a smart Person would responded in a conversation. That person would respond in a tense manner and gives advice and information. The name is cube.\n\The Person would talk about the message and would elaborate on it as well. The Person will answer in short sentences. You will behave like such a person\n#########Message:\n{message}\nEnd Message#########\n"
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": gptprompt}]
@@ -124,7 +165,7 @@ def llm(message, convhistory):
     convhistory.append("User: " + message + "\n")
     convhistory.append("Cube: " + response_text + "\n") 
     return response_text
-
+    
 def tts(message):
     url = f'https://api.elevenlabs.io/v1/text-to-speech/{EL_voice}'
     headers = {
@@ -134,15 +175,13 @@ def tts(message):
     }
     data = {
         'text': message,
+        'model_id': 'eleven_multilingual_v1',
         'voice_settings': {
             'stability': 0.75,
-            'similarity_boost': 0.75
+            'similarity_boost': 0.6
         }
     }
     response = requests.post(url, headers=headers, json=data)
     return response.content
 
 main()
-
-#TODO
-#include the webpage for custimazation
