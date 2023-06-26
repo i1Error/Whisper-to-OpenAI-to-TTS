@@ -149,7 +149,7 @@ def transcribe_forever(audio_queue, result_queue, verbose, save_file, convhistor
  
 def llm(message, convhistory):
     openai.api_key = OAI_key
-    gptprompt= f"\n\n{convhistory}\n\nThis is how a smart Person would responded in a conversation. That person would respond in a tense manner and gives advice and information. The name is cube.\n\The Person would talk about the message and would elaborate on it as well. The Person will answer in short sentences. You will behave like such a person\n#########Message:\n{message}\nEnd Message#########\n"
+    gptprompt= f"Behavior: This is how a smart Person would responded in a conversation. That person would respond in a tense manner and gives advice and information.\n\The Person would talk about the message and would elaborate on it as well. The Person will answer in short sentences. You will behave like such a person.\nConversation history:{convhistory}\n\n#########Message:\n{message}\nEnd Message#########\n"
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user", "content": gptprompt}]
