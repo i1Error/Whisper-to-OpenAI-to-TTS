@@ -11,7 +11,7 @@
 			addNewInputField(workspace);
 		});
 
-		function generateOutput(inputTextarea) {
+		function generateOutputT(inputTextarea) {
 			const outputContainer = document.createElement("div");
 			outputContainer.classList.add("message", "output");
 			const textContainer = document.createElement("div");
@@ -26,20 +26,46 @@
 			outputContainer.appendChild(avatarContainer);
 			const workspace = document.getElementById("workspace");
 			workspace.appendChild(outputContainer);
-
+					
 			const http = new XMLHttpRequest();
 			const url = "/process";
 			const params = encodeURIComponent(inputTextarea.value);
-			http.open("POST", url, true);
-			http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			http.open("POST", url, true);										
 			http.onreadystatechange = function () {
 				if (http.readyState == 4 && http.status == 200) {
 					outputTextarea.value = http.responseText;
 				}
 			};
-			http.send(params);
+			http.send(params);							
 		}
-
+		
+		function generateOutputM(inputTextarea) {
+			const outputContainer = document.createElement("div");
+			outputContainer.classList.add("message", "output");
+			const textContainer = document.createElement("div");
+			textContainer.classList.add("text");
+			outputContainer.appendChild(textContainer);
+			const outputTextarea = document.createElement("textarea");
+			outputTextarea.value = "Say Something";
+			outputTextarea.disabled = true;
+			textContainer.appendChild(outputTextarea);
+			const avatarContainer = document.createElement("div");
+			avatarContainer.classList.add("avatar_output");
+			outputContainer.appendChild(avatarContainer);
+			const workspace = document.getElementById("workspace");
+			workspace.appendChild(outputContainer);
+					
+			const http = new XMLHttpRequest();
+			const url = "/recordmessage";
+			http.open("POST", url, true);
+			http.onreadystatechange = function () {
+				if (http.readyState == 4 && http.status == 200) {
+					outputTextarea.value = http.responseText;
+				}
+			};
+			http.send();																	
+		}
+		
 		function addNewInputField(workspace) {
 			const inputContainer = document.createElement("div");
 			inputContainer.classList.add("message", "input");
@@ -50,7 +76,7 @@
 			inputTextContainer.classList.add("text");
 			inputContainer.appendChild(inputTextContainer);
 			const inputTextarea = document.createElement("textarea");
-			inputTextarea.placeholder = "Type your input here \n\n\n Shift + Enter = Submit text \n Shift + M = Record Message";
+			inputTextarea.placeholder = "Type your input here \n\n\n Shift + Enter = Submit text";
 			inputTextContainer.appendChild(inputTextarea);
 			workspace.appendChild(inputContainer);
 			inputTextarea.focus();
@@ -61,16 +87,21 @@
 			});
 
 			inputTextarea.addEventListener("keydown", function (event) {
-				if (event.shiftKey && event.key === "Enter") {
-					event.preventDefault();
-					generateOutput(inputTextarea);
-					inputTextarea.value = inputObject
-					addNewInputField(workspace);
+				const checkbox = document.getElementById("Mic");
+				if (!checkbox.checked) {
+					if (event.shiftKey && event.key === "Enter") {			
+						generateOutputT(inputTextarea);
+						inputTextarea.value = inputObject; 
+						addNewInputField(workspace);
+					}
 				}
+				if (checkbox.checked) {
+					generateOutputM(inputTextarea);			
+					
+					addNewInputField(workspace);
+				}				
 			});
 		}
-
-		//function for shift + m activating whisper mic
 	</script>
 	<style>
 		.message {
@@ -146,7 +177,7 @@
 
 		.menu {
 			width: 100%;
-			height: 100px;
+			height: 200px;
 			background-color: #c2af92;
 		}
 
@@ -157,10 +188,51 @@
 </head>
 
 <body>
-	<div class="menu"></div>
+	<div class="menu">
+		<label for="Mic">Use Microphone</label>
+		<input type="checkbox" id="Mic">
+		<label for="model">Voices:</label>
+		<select id="model" name="model">
+			<option>Darius</option>
+			<option>Arnold</option>	
+		</select>		
+		<label for="model">Model:</label>
+		<select id="model" name="model">
+			<option value="text-davinci-003">text-davinci-003</option>
+			<option value="B2">Model B2</option>
+			<option value="C3">Model C3</option>
+		</select>
+		<label for="pres-penalty-slider">System Prompt:</label>
+		<input type="text" placeholder="This is how a smart Person would responded in a conversation. That person would respond in a tense manner and gives advice and information.\n\The Person would talk about the message and would elaborate on it as well. The Person will answer in short sentences. You will behave like such a person\n#########Message:\n{message}\nEnd Message#########\n">
+		<br>
+		<p><b>GPT Settings</b></p>
+		<label for="temperature-slider">Temperature:</label>
+		<input type="range" id="temperature-slider" min="0" max="1" step="0.1" value="0.5">
+		<label for="max-tokens-slider">Max Tokens:</label>
+		<input type="range" id="max-tokens-slider" min="1" max="2048" step="1" value="128">
+		<label for="top-p-slider">Top P:</label>
+		<input type="range" id="top-p-slider" min="0" max="1" step="0.1" value="1">
+		<label for="freq-penalty-slider">Frequency Penalty:</label>
+		<input type="range" id="freq-penalty-slider" min="0" max="1" step="0.1" value="1">
+		<label for="pres-penalty-slider">Presence Penalty:</label>
+		<input type="range" id="pres-penalty-slider" min="0" max="1" step="0.1" value="1">
+		<br>
+		<p><b>Elevenlabs Settings</b></p>
+		<label for="max-tokens-slider">Max Tokens:</label>
+		<input type="range" id="max-tokens-slider" min="1" max="2048" step="1" value="128">
+		<label for="temperature-slider">Pitch:</label>
+		<input type="range" id="temperature-slider" min="0" max="1" step="0.1" value="0.5">
+		<label for="top-p-slider">Speed:</label>
+		<input type="range" id="top-p-slider" min="0" max="1" step="0.1" value="1">
+		<label for="freq-penalty-slider">Stability:</label>
+		<input type="range" id="freq-penalty-slider" min="0" max="1" step="0.1" value="1">
+	</div>
+	
+	
 	<div class="chat">
 		<div id="workspace"></div>
 	</div>
+	
 </body>
 
 </html>
