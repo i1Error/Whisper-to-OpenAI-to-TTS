@@ -1,8 +1,10 @@
 import http.server
 import socketserver
-import tts
+from cube import *
 
-class MyHandler(http.server.BaseHTTPRequestHandler):
+#Note: when starting server.py remove main() at the end of file in cube.py
+
+class MyHandler(http.server.BaseHTTPRequestHandler):   
     def do_GET(self):
         if self.path == '/':
             self.send_response(200)
@@ -13,19 +15,19 @@ class MyHandler(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.path == '/process':
+            convhis = ""
             content_length = int(self.headers['Content-Length'])
             post_data = self.rfile.read(content_length)
             params = post_data.decode('utf-8') 
 
-            output_text = tts.llm(params) # input for gpt
-
+            output_text = llm(params, convhis) # input for gpt
+            
             self.send_response(200)
             self.send_header('Content-type', 'text/plain')
             self.end_headers()
             self.wfile.write(bytes(output_text, 'utf-8'))
 
-            tts.tts(output_text) # output to tts
-
+            tts(output_text) # output tts
 
 PORT = 8000
 
